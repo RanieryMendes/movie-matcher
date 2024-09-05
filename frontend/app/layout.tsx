@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Home from "./page";
+
+// Import your Home component if needed
+import Home from "./page"; // If you want Home to be the default page content, you can keep this.
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -21,10 +24,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-   <Home />
+    <html lang="en">
+      <head>
+        <link rel="stylesheet" href="./globals.css" />
+        <meta name="description" content={metadata.description} />
+        <title>{metadata.title}</title>
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        {children}
+        {/* If you want Home component to render by default, you can place it here */}
+    
+      </body>
+    </html>
   );
 }
