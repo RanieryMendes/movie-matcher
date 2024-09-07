@@ -60,11 +60,15 @@ class Command(BaseCommand):
                     'spoken_languages': row['spoken_languages'],
                     'keywords': row['keywords']
                 }
-                # print(movie_data)
-                movie, created = Movie.objects.update_or_create(
-                    tmdb_id=int(row['id']),
-                    defaults=movie_data
-                )
+                print(movie_data)
+                try:
+                    movie, created = Movie.objects.update_or_create(
+                        tmdb_id=int(row['id']),
+                        defaults=movie_data
+                    )
+                except any as e:
+                    print(f"Invalid {e}")
+                    print(movie_data)
 
                 if created:
                     self.stdout.write(self.style.SUCCESS(f"Successfully added movie: {row['title']}"))
