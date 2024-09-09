@@ -8,6 +8,6 @@ until nc -z postgres 5432; do
 done
 
 echo "PostgreSQL started"
-
+pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver 0.0.0.0:8000

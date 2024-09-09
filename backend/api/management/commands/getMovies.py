@@ -1,4 +1,5 @@
 import csv
+import django
 from django.core.management.base import BaseCommand
 from api.models import Movie
 from datetime import datetime
@@ -60,19 +61,22 @@ class Command(BaseCommand):
                     'spoken_languages': row['spoken_languages'],
                     'keywords': row['keywords']
                 }
-                print(movie_data)
+                # print(movie_data)
                 try:
                     movie, created = Movie.objects.update_or_create(
                         tmdb_id=int(row['id']),
                         defaults=movie_data
                     )
-                except any as e:
-                    print(f"Invalid {e}")
+                except django.db.utils.DataError as e:
+                    print(movie_data)
+                    print(f"Data too long for field: {e}")
+                except Exception as e:
+                    print(f"An error occurred: {e}")
                     print(movie_data)
 
-                if created:
-                    self.stdout.write(self.style.SUCCESS(f"Successfully added movie: {row['title']}"))
-                else:
-                    self.stdout.write(self.style.SUCCESS(f"Successfully updated movie: {row['title']}"))
+                # if created:
+                #     self.stdout.write(self.style.SUCCESS(f"Successfully added movie: {row['title']}"))
+                # else:
+                #     self.stdout.write(self.style.SUCCESS(f"Successfully updated movie: {row['title']}"))
 
         self.stdout.write(self.style.SUCCESS('Finished populating and updating movies from CSV'))
