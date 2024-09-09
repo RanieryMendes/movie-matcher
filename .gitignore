@@ -40,3 +40,7 @@ docker-compose.override.yml
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+./backend/title_id_map.csv
+./backend/TMDB_movie_dataset_v11.csv
