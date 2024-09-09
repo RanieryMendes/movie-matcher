@@ -1,11 +1,20 @@
 from ninja import Router
 from typing import List
 from django.shortcuts import get_object_or_404
-from backend.api.models import Movie
+from ..models import Movie
 from .schemas import MovieSchema, MovieIn
-from backend.api.auth.auth import AuthBearer
+from ..auth.security import AuthBearer
+from django.forms.models import model_to_dict
 
 router = Router()
+
+@router.get("/popular",response=List[MovieSchema])
+def get_popular_movies(request):
+    print("In popular request")
+    popular_movies = Movie.objects.order_by('-popularity')[:10]
+    print(popular_movies)
+    movie_list = [model_to_dict(movie) for movie in popular_movies]
+    return movie_list
 
 @router.get("/", response=List[MovieSchema], auth=AuthBearer())
 def list_movies(request):
@@ -33,7 +42,3 @@ def delete_movie(request, tmdb_id: int):
     movie.delete()
     return {"success": True}
 
-@router.get("/popular", response=List[MovieSchema], auth=AuthBearer())
-def get_popular_movies(request):
-    popular_movies = Movie.objects.order_by('-popularity')[:10]
-    return popular_movies
