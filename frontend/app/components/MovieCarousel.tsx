@@ -1,11 +1,13 @@
 import React from 'react';
 import  Carousel  from 'react-material-ui-carousel';
 import { Paper, Button, Typography, Box } from '@mui/material';
-
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 interface Movie {
   id: number;
   title: string;
   poster_path: string;
+  tmdb_id: number;
 }
 
 interface MovieCarouselProps {
@@ -13,7 +15,7 @@ interface MovieCarouselProps {
 }
 
 const MovieCarousel: React.FC<MovieCarouselProps> = ({ movies }) => {
-  console.log("AA", movies)
+  console.log(movies);
   return (
    
     <Carousel>
@@ -34,9 +36,11 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({ movies }) => {
             <Typography variant="h4" sx={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
               {movie.title}
             </Typography>
-            <Button variant="contained" color="primary" sx={{ mt: 2 }}>
-              View Details
-            </Button>
+            <Link href={`/movie/${movie.tmdb_id}`}>
+              <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+                View Details
+              </Button>
+            </Link>
           </Box>
         </Paper>
       ))}
@@ -45,3 +49,8 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({ movies }) => {
 };
 
 export default MovieCarousel;
+
+
+
+//write a function that when the user clicks on the button
+// saying view details it should take the user to the details page of the movie

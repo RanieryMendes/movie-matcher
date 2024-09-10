@@ -1,8 +1,8 @@
 from django.db import models
-
+from django.conf import settings
 # Create your models here.
 from django.db import models
-
+from django.contrib.auth.models import User
 class Movie(models.Model):
     tmdb_id = models.IntegerField(unique=True, verbose_name="TMDb ID")
     title = models.CharField(max_length=500)
@@ -63,3 +63,24 @@ class MovieIDMapping(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.imdb_id})"
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    country = models.CharField(max_length=100, blank=True)
+    streaming_services = models.TextField(blank=True)  # Store as JSON string
+    preferred_genres = models.TextField(blank=True)  # Store as JSON string
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    bio = models.TextField(max_length=500, blank=True)
+    
+
+    def __str__(self):
+        return self.user.username
+    
+    @property
+    def username(self):
+        return self.user.username
+    
+    def get_profile_picture_url(self):
+        if self.profile_picture:
+            return f"{settings.MEDIA_URL}{self.profile_picture}"
+        return None

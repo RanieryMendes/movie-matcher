@@ -1,20 +1,26 @@
-'use client';
-
 import React from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import type { Metadata } from 'next'
+import theme from './styles/theme'
 
-const theme = createTheme({
-  // Customize your theme here
-});
+export const metadata: Metadata = {
+  title: 'Your App Name',
+  description: 'Your app description',
+  icons: {
+    icon: 'icon.ico',
+  },
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <body>{children}</body>
-      </ThemeProvider>
+      <body>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

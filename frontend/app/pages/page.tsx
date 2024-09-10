@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box } from '@mui/material';
 import MovieCarousel from './../components/MovieCarousel';
-import Sidebar from './../components/Sidebar';
 
+import dynamic from 'next/dynamic';
 interface Movie {
   id: number;
   title: string;
   poster_path: string;
+  tmdb_id: number;
 }
+const Sidebar = dynamic(() => import('./../components/sideBar'), { ssr: false });
 
 export default function Home() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
@@ -20,7 +22,7 @@ export default function Home() {
         const response = await fetch('http://localhost:8000/api/movies/popular');
         const data = await response.json();
         setPopularMovies(data);
-        console.log("Data",data);
+      
       } catch (error) {
         console.error('Error fetching popular movies:', error);
       }
@@ -33,7 +35,7 @@ export default function Home() {
     <div>
    
     <Box sx={{ display: 'flex' }}>
-      <Sidebar />
+    {typeof window !== 'undefined' && <Sidebar />}
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Welcome to Movie Matcher
