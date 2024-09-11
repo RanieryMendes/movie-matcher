@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
           { text: 'Home', icon: <Home />,link: '/' },
           { text: 'Favorites', icon: <Favorite />,link: '/profile' },
           { text: 'Search', icon: <Search /> ,link: '/profile'},
-          { text: 'Matching', icon: <Dashboard />,link: '/profile' },
+          { text: 'Matching', icon: <Dashboard />,link: '/matching' },
           { text: 'Settings', icon: <Settings />, link: '/profile'},
           { text: 'Profile', icon: <Person />, link: '/profile' },
         ].map((item, index) => (
