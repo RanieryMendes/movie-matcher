@@ -17,11 +17,13 @@ from .auth.security import AuthBearer  # Import from the new security module
 from .auth.routes import auth_router
 from .movies.routes import router
 from .profile.routes import profile_router
+from .streamingPlatform.routes import router_streaming_platform
 
 api = NinjaAPI()
 api.add_router("/auth", auth_router)
 api.add_router("/movies", router)
 api.add_router("/profile", profile_router)
+api.add_router("/streaming", router_streaming_platform)
 # JWT Authentication
 
 # Schemas

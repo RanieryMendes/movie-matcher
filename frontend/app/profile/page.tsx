@@ -12,14 +12,17 @@ import {
   CardContent,
   Avatar,
   Grid,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
 } from '@mui/material';
-import { getProfile, updateProfile, uploadProfilePicture } from '../lib/api';
+import { getProfile, updateProfile, uploadProfilePicture, getStreamingPlatforms } from '../lib/api';
 import Sidebar from '../components/sideBar';
 
 interface Profile {
   username: string;
   country: string;
-  streaming_services: string;
+  streaming_services: string[];
   preferred_genres: string;
   profile_picture: string | null;
   bio: string;
@@ -28,11 +31,23 @@ interface Profile {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [availablePlatforms, setAvailablePlatforms] = useState<string[]>([]);
+
   const router = useRouter();
 
   useEffect(() => {
     fetchProfile();
+    fetchStreamingPlatforms();
   }, []);
+
+  const fetchStreamingPlatforms = async () => {
+    try {
+      const platforms = await getStreamingPlatforms();
+      setAvailablePlatforms(platforms);
+    } catch (error) {
+      console.error('Error fetching streaming platforms:', error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -73,6 +88,15 @@ export default function ProfilePage() {
     }
   };
 
+  const handleStreamingServiceChange = (platform: string) => {
+    setProfile((prevProfile) => {
+      const updatedServices = prevProfile!.streaming_services.includes(platform)
+        ? prevProfile!.streaming_services.filter((service) => service !== platform)
+        : [...prevProfile!.streaming_services, platform];
+      return { ...prevProfile!, streaming_services: updatedServices };
+    });
+  };
+
   const API_BASE_URL = process.env.API_BASE_URL;
   if (!profile) {
     return <Typography>Loading...</Typography>;
@@ -91,7 +115,7 @@ export default function ProfilePage() {
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Avatar
-                  src={profile.profile_picture ? "./../../../media/profile_pictures/uploaded_file_rgfovT0.ico" : '/default-avatar.png'}
+                  src={profile.profile_picture}
                   sx={{ width: 150, height: 150, margin: 'auto' }}
                 />
                 {isEditing && (
@@ -114,6 +138,7 @@ export default function ProfilePage() {
               <Grid item xs={12} md={8}>
                 {isEditing ? (
                   <form onSubmit={handleUpdate}>
+
                     <TextField
                       fullWidth
                       label="Country"
@@ -123,7 +148,8 @@ export default function ProfilePage() {
                       }
                       margin="normal"
                     />
-                    <TextField
+
+                    {/* <TextField
                       fullWidth
                       label="Streaming Services"
                       value={profile.streaming_services}
@@ -134,7 +160,23 @@ export default function ProfilePage() {
                         })
                       }
                       margin="normal"
-                    />
+                    /> */}
+                        <FormGroup>
+                            <Typography variant="subtitle1">Streaming Services</Typography>
+                            {availablePlatforms.map((platform) => (
+                                <FormControlLabel
+                                key={platform}
+                                control={
+                                    <Checkbox
+                                    checked={profile.streaming_services.includes(platform)}
+                                    onChange={() => handleStreamingServiceChange(platform)}
+                                    />
+                                }
+                                label={platform}
+                                />
+                            ))}
+                        </FormGroup>
+
                     <TextField
                       fullWidth
                       label="Preferred Genres"
@@ -166,7 +208,7 @@ export default function ProfilePage() {
                   <>
                     <Typography variant="h6">Country: {profile.country}</Typography>
                     <Typography variant="body1">
-                      Streaming Services: {profile.streaming_services}
+                      Streaming Services: {Array.isArray(profile.streaming_services) ? profile.streaming_services.join(', ') : 'None'}
                     </Typography>
                     <Typography variant="body1">
                       Preferred Genres: {profile.preferred_genres}

@@ -14,6 +14,7 @@ profile_router = Router()
 @profile_router.get("/", response=UserProfileSchema, auth=AuthBearer())
 def get_profile(request):
     profile, created = UserProfile.objects.get_or_create(user=request.auth)
+    print(profile.get_profile_picture_url())
     return profile
 
 @profile_router.put("/", response=UserProfileSchema, auth=AuthBearer())

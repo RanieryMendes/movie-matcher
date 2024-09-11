@@ -3,6 +3,15 @@ from django.conf import settings
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import User
+from storages.backends.azure_storage import AzureStorage
+from movie_matcher.settings import generate_blob_sas_token
+
+class AzureMediaStorage(AzureStorage):
+    account_name = settings.AZURE_ACCOUNT_NAME
+    account_key = settings.AZURE_ACCOUNT_KEY
+    azure_container = settings.AZURE_CONTAINER
+    expiration_secs = None
+
 class Movie(models.Model):
     tmdb_id = models.IntegerField(unique=True, verbose_name="TMDb ID")
     title = models.CharField(max_length=500)
@@ -69,7 +78,7 @@ class UserProfile(models.Model):
     country = models.CharField(max_length=100, blank=True)
     streaming_services = models.TextField(blank=True)  # Store as JSON string
     preferred_genres = models.TextField(blank=True)  # Store as JSON string
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture = models.ImageField(storage=AzureMediaStorage(), upload_to='profile_pictures/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True)
     
 
@@ -82,5 +91,9 @@ class UserProfile(models.Model):
     
     def get_profile_picture_url(self):
         if self.profile_picture:
-            return f"{settings.MEDIA_URL}{self.profile_picture}"
+            blob_name = self.profile_picture.name
+            sas_token = generate_blob_sas_token(blob_name)
+            print(f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER}/{blob_name}?{sas_token}")
+            return f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER}/{blob_name}?{sas_token}"
+        
         return None

@@ -78,3 +78,16 @@ export const uploadProfilePicture = async (file: File) => {
   if (!response.ok) throw new Error('Failed to upload profile picture');
   return response.json();
 };
+
+export async function getStreamingPlatforms(): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/api/streaming/`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch streaming platforms');
+  }
+  const data = await response.json();
+  return data.platforms;
+}
