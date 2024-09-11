@@ -14,6 +14,7 @@ import {
   Grid,
 } from '@mui/material';
 import { getProfile, updateProfile, uploadProfilePicture } from '../lib/api';
+import Sidebar from '../components/sideBar';
 
 interface Profile {
   username: string;
@@ -79,6 +80,7 @@ export default function ProfilePage() {
   console.log("Profile", profile.profile_picture)
   return (
     <Box sx={{ display: 'flex' }}>
+    <Sidebar />
     <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
