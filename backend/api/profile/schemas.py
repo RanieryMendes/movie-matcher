@@ -1,9 +1,9 @@
 from ninja import Schema
-from typing import Optional
+from typing import Optional, List
 
 class UserProfileSchema(Schema):
     country: str
-    streaming_services: str
+    streaming_services: List[str]
     preferred_genres: str
     profile_picture: Optional[str] = None
     bio: str
@@ -14,7 +14,7 @@ class UserProfileSchema(Schema):
 
 class UserProfileUpdateSchema(Schema):
     country: Optional[str]
-    streaming_services: Optional[str]
+    streaming_services: Optional[List[str]]
     preferred_genres: Optional[str]
     bio: Optional[str]
    
