@@ -4,9 +4,10 @@ from typing import Optional, List
 class UserProfileSchema(Schema):
     country: str
     streaming_services: List[str]
-    preferred_genres: str
+    preferred_genres: List[str]
     profile_picture: Optional[str] = None
     bio: str
+    username:str
 
     @staticmethod
     def resolve_profile_picture(obj):
@@ -15,6 +16,6 @@ class UserProfileSchema(Schema):
 class UserProfileUpdateSchema(Schema):
     country: Optional[str]
     streaming_services: Optional[List[str]]
-    preferred_genres: Optional[str]
+    preferred_genres: Optional[List[str]]
     bio: Optional[str]
    

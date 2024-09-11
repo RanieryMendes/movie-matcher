@@ -16,14 +16,16 @@ import {
   FormGroup,
   FormControlLabel,
 } from '@mui/material';
-import { getProfile, updateProfile, uploadProfilePicture, getStreamingPlatforms } from '../lib/api';
+import { getProfile, updateProfile, uploadProfilePicture, getStreamingPlatforms, getGenres } from '../lib/api';
 import Sidebar from '../components/sideBar';
-
+import { Chip, Paper } from '@mui/material';
+import { Autocomplete } from '@mui/material';
+import countries from '../lib/countries';
 interface Profile {
   username: string;
   country: string;
   streaming_services: string[];
-  preferred_genres: string;
+  preferred_genres: string[]
   profile_picture: string | null;
   bio: string;
 }
@@ -32,18 +34,30 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [availablePlatforms, setAvailablePlatforms] = useState<string[]>([]);
-
+  const [availableGenres, setAvailableGenres] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     fetchProfile();
     fetchStreamingPlatforms();
+    fetchGenres();
   }, []);
 
+  const fetchGenres = async () => {
+    try {
+      const genres = await getGenres();
+      setAvailableGenres(genres);
+      console.log("Genres", genres)
+
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  };
   const fetchStreamingPlatforms = async () => {
     try {
       const platforms = await getStreamingPlatforms();
       setAvailablePlatforms(platforms);
+      console.log("Platforms", platforms)
     } catch (error) {
       console.error('Error fetching streaming platforms:', error);
     }
@@ -97,11 +111,20 @@ export default function ProfilePage() {
     });
   };
 
+  const handleGenreChange = (genre: string) => {
+    setProfile((prevProfile) => {
+      const updatedGenres = prevProfile!.preferred_genres.includes(genre)
+        ? prevProfile!.preferred_genres.filter((g) => g !== genre)
+        : [...prevProfile!.preferred_genres, genre];
+      return { ...prevProfile!, preferred_genres: updatedGenres };
+    });
+  };
+
   const API_BASE_URL = process.env.API_BASE_URL;
   if (!profile) {
     return <Typography>Loading...</Typography>;
   }
-  console.log("Profile", profile.profile_picture)
+
   return (
     <Box sx={{ display: 'flex' }}>
     <Sidebar />
@@ -139,7 +162,7 @@ export default function ProfilePage() {
                 {isEditing ? (
                   <form onSubmit={handleUpdate}>
 
-                    <TextField
+                    {/* <TextField
                       fullWidth
                       label="Country"
                       value={profile.country}
@@ -147,6 +170,22 @@ export default function ProfilePage() {
                         setProfile({ ...profile, country: e.target.value })
                       }
                       margin="normal"
+                    /> */}
+                     <Autocomplete
+                    options={countries}
+                    autoHighlight
+                    value={profile.country}
+                    onChange={(event, newValue) => {
+                        setProfile({ ...profile, country: newValue || '' });
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                        {...params}
+                        label="Choose a country"
+                        fullWidth
+                        margin="normal"
+                        />
+                    )}
                     />
 
                     {/* <TextField
@@ -161,8 +200,8 @@ export default function ProfilePage() {
                       }
                       margin="normal"
                     /> */}
-                        <FormGroup>
-                            <Typography variant="subtitle1">Streaming Services</Typography>
+                        {/* <FormGroup> */}
+                            {/* <Typography variant="subtitle1">Streaming Services</Typography>
                             {availablePlatforms.map((platform) => (
                                 <FormControlLabel
                                 key={platform}
@@ -175,20 +214,54 @@ export default function ProfilePage() {
                                 label={platform}
                                 />
                             ))}
-                        </FormGroup>
+                        {/* </FormGroup>
 
-                    <TextField
-                      fullWidth
-                      label="Preferred Genres"
-                      value={profile.preferred_genres}
-                      onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          preferred_genres: e.target.value,
-                        })
-                      }
-                      margin="normal"
+                        <FormGroup> 
+                            <Typography variant="subtitle1">Preferred Genres</Typography>
+                            {availableGenres.map((genre) => (
+                            <FormControlLabel
+                                key={genre}
+                                control={
+                                <Checkbox
+                                    checked={profile.preferred_genres.includes(genre)}
+                                    onChange={() => handleGenreChange(genre)}
+                                />
+                                }
+                                label={genre}
+                            />
+                            ))}
+                        </FormGroup> */}
+                        <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Streaming Services</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {availablePlatforms.map((platform) => (
+                    <Chip
+                      key={platform}
+                      label={platform}
+                      onClick={() => handleStreamingServiceChange(platform)}
+                      color={profile.streaming_services.includes(platform) ? "primary" : "default"}
+                      variant={profile.streaming_services.includes(platform) ? "filled" : "outlined"}
                     />
+                  ))}
+                </Box>
+              </Paper>
+
+              <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>Preferred Genres</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {availableGenres.map((genre) => (
+                    <Chip
+                      key={genre}
+                      label={genre}
+                      onClick={() => handleGenreChange(genre)}
+                      color={profile.preferred_genres.includes(genre) ? "primary" : "default"}
+                      variant={profile.preferred_genres.includes(genre) ? "filled" : "outlined"}
+                    />
+                  ))}
+                </Box>
+              </Paper>
+
+            
                     <TextField
                       fullWidth
                       label="Bio"
@@ -211,8 +284,9 @@ export default function ProfilePage() {
                       Streaming Services: {Array.isArray(profile.streaming_services) ? profile.streaming_services.join(', ') : 'None'}
                     </Typography>
                     <Typography variant="body1">
-                      Preferred Genres: {profile.preferred_genres}
+                      Preferred Genres: {Array.isArray(profile.preferred_genres) ? profile.preferred_genres.join(', ') : 'None'}
                     </Typography>
+            
                     <Typography variant="body1">Bio: {profile.bio}</Typography>
                     <Button
                       onClick={() => setIsEditing(true)}

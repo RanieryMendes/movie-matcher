@@ -52,6 +52,9 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def genre_list(self):
+        return list(self.genres.values_list('name', flat=True))
 
 class StreamingPlatform(models.Model):
     name = models.CharField(max_length=255)
@@ -89,7 +92,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     country = models.CharField(max_length=100, blank=True)
     streaming_services = ArrayField(models.CharField(max_length=100), default=list, blank=True)  # Store as JSON string
-    preferred_genres = models.TextField(blank=True)  # Store as JSON string
+    preferred_genres = ArrayField( models.CharField(max_length=100), default=list, blank=True)  # Store as JSON string
     profile_picture = models.ImageField(storage=AzureMediaStorage(), upload_to='profile_pictures/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True)
     

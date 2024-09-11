@@ -91,3 +91,19 @@ export async function getStreamingPlatforms(): Promise<string[]> {
   const data = await response.json();
   return data.platforms;
 }
+
+export async function getGenres(): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/api/movies/genres`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch genres');
+  }
+
+  const data = await response.json();
+  return data.genres;
+}
