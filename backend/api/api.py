@@ -15,9 +15,16 @@ from django.shortcuts import get_object_or_404
 from .models import Movie, StreamingPlatform, StreamingAvailability, MovieIDMapping
 from .auth.security import AuthBearer  # Import from the new security module
 from .auth.routes import auth_router
-
+from .movies.routes import router
+from .profile.routes import profile_router
+from .streamingPlatform.routes import router_streaming_platform
+from .matching.routes import matching_group_router
 api = NinjaAPI()
 api.add_router("/auth", auth_router)
+api.add_router("/movies", router)
+api.add_router("/profile", profile_router)
+api.add_router("/streaming", router_streaming_platform)
+api.add_router("/matching", matching_group_router)
 # JWT Authentication
 
 # Schemas
@@ -31,35 +38,35 @@ class MovieIn(Schema):
     tmdb_id: int
     # Add other fields as needed, excluding auto-generated fields
 
-# Movie endpoints
-@api.get("/movies", response=List[MovieSchema], auth=AuthBearer())
-def list_movies(request):
-    return Movie.objects.all()
+# # Movie endpoints
+# @api.get("/movies", response=List[MovieSchema], auth=AuthBearer())
+# def list_movies(request):
+#     return Movie.objects.all()
 
-@api.get("/movies/{movie_id}", response=MovieSchema) #auth=AuthBearer())
-def get_movie(request, movie_id: int):
-    movie = Movie.objects.get(tmdb_id=movie_id)
-    print("Hello")
-    print(movie)
-    return get_object_or_404(Movie, tmdb_id=movie_id)
+# @api.get("/movies/{movie_id}", response=MovieSchema) #auth=AuthBearer())
+# def get_movie(request, movie_id: int):
+#     movie = Movie.objects.get(tmdb_id=movie_id)
+#     print("Hello")
+#     print(movie)
+#     return get_object_or_404(Movie, tmdb_id=movie_id)
 
-@api.post("/movies", response=MovieSchema, auth=AuthBearer())
-def create_movie(request, movie: MovieIn):
-    return Movie.objects.create(**movie.dict())
+# @api.post("/movies", response=MovieSchema, auth=AuthBearer())
+# def create_movie(request, movie: MovieIn):
+#     return Movie.objects.create(**movie.dict())
 
-@api.put("/movies/{movie_id}", response=MovieSchema)#, auth=AuthBearer())
-def update_movie(request, movie_id: int, data: MovieIn):
-    movie = get_object_or_404(Movie, id=movie_id)
-    for attr, value in data.dict().items():
-        setattr(movie, attr, value)
-    movie.save()
-    return movie
+# @api.put("/movies/{movie_id}", response=MovieSchema)#, auth=AuthBearer())
+# def update_movie(request, movie_id: int, data: MovieIn):
+#     movie = get_object_or_404(Movie, id=movie_id)
+#     for attr, value in data.dict().items():
+#         setattr(movie, attr, value)
+#     movie.save()
+#     return movie
 
-@api.delete("/movies/{movie_id}", auth=AuthBearer())
-def delete_movie(request, movie_id: int):
-    movie = get_object_or_404(Movie, id=movie_id)
-    movie.delete()
-    return {"success": True}
+# @api.delete("/movies/{movie_id}", auth=AuthBearer())
+# def delete_movie(request, movie_id: int):
+#     movie = get_object_or_404(Movie, id=movie_id)
+#     movie.delete()
+#     return {"success": True}
 
 # Implement similar endpoints for StreamingPlatform, StreamingAvailability, and MovieIDMapping
 

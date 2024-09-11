@@ -1,3 +1,4 @@
+import Home from './pages/page'
 export default function Page() {
-  return <h1>Hello, Home page!</h1>
+  return <Home />
 }

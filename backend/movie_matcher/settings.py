@@ -1,6 +1,20 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from azure.storage.blob import generate_blob_sas, BlobSasPermissions
+from datetime import datetime, timedelta
+
+
+def generate_blob_sas_token(blob_name):
+    sas_token = generate_blob_sas(
+        account_name=AZURE_ACCOUNT_NAME,
+        container_name=AZURE_CONTAINER,
+        blob_name=blob_name,
+        account_key=AZURE_ACCOUNT_KEY,
+        permission=BlobSasPermissions(read=True),
+        expiry=datetime.utcnow() + timedelta(hours=1)
+    )
+    return sas_token
 
 load_dotenv()
 
@@ -94,3 +108,13 @@ CORS_ALLOW_ALL_ORIGINS = True  # For development only, configure properly for pr
 #         'rest_framework.permissions.IsAuthenticated',
 #     ]
 # }
+
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+AZURE_ACCOUNT_NAME = os.getenv('AZURE_STORAGE_ACCOUNT_NAME')
+AZURE_ACCOUNT_KEY = os.getenv('AZURE_STORAGE_ACCOUNT_KEY')
+AZURE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER_NAME')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
