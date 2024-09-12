@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Container, List, ListItem, ListItemText, Chip } from '@mui/material';
+import { Box, Typography, Button, Container, List, ListItem, ListItemText, Chip, Snackbar } from '@mui/material';
 import { styled } from '@mui/system';
 import { getUserParties } from '../lib/api';
 
@@ -45,10 +45,29 @@ const MyParties = () => {
     fetchParties();
   }, []);
 
-  const handleJoinParty = (partyId) => {
-    // TODO: Implement join party logic
-    console.log('Joining party:', partyId);
+  const [copyMessage, setCopyMessage] = useState('');
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const handleShareParty = (partyId: string) => {
+    navigator.clipboard.writeText(partyId).then(() => {
+      setCopyMessage('Party code copied to clipboard!');
+      setOpenSnackbar(true);
+      setTimeout(() => setOpenSnackbar(false), 3000); // Close Snackbar after 3 seconds
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      setCopyMessage('Failed to copy party code');
+      setOpenSnackbar(true);
+    });
   };
+
+  const handleCloseSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
 
   
 
@@ -95,9 +114,9 @@ const MyParties = () => {
                   <StyledButton
                     variant="contained"
                     color="primary"
-                    onClick={() => handleJoinParty(party.id)}
+                    onClick={() => handleShareParty(party.code)}
                   >
-                    Join
+                    Share
                   </StyledButton>
                 </ListItem>
               ))}
@@ -109,6 +128,16 @@ const MyParties = () => {
           )}
         </Box>
       </Container>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message={copyMessage}
+      />
     </Box>
   );
 };
