@@ -4,6 +4,9 @@ import { styled } from '@mui/system';
 import GroupIcon from '@mui/icons-material/Group';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import { createTheme } from '@mui/material/styles';
+
+
 
 const StyledButton = styled(Button)(({ theme }) => ({
   padding: theme.spacing(2, 4),
@@ -16,11 +19,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const MatchingWelcome = () => {
+const MatchingWelcome = ({ onBeginNewParty, onMyParties }) => {
   const buttons = [
-    { text: 'My Parties', icon: <GroupIcon /> },
-    { text: 'Begin New Party', icon: <CelebrationIcon /> },
-    { text: 'Join a Party', icon: <MeetingRoomIcon /> },
+    { text: 'My Parties', icon: <GroupIcon />, onClick: onMyParties },
+    { text: 'Begin New Party', icon: <CelebrationIcon />, onClick: onBeginNewParty },
+    { text: 'Join a Party', icon: <MeetingRoomIcon />, onClick: () => {} },
   ];
 
   return (
@@ -45,6 +48,7 @@ const MatchingWelcome = () => {
                 color="primary"
                 fullWidth
                 startIcon={button.icon}
+                onClick={button.onClick}
               >
                 {button.text}
               </StyledButton>

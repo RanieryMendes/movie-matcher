@@ -123,7 +123,8 @@ class Group(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_groups')
     members = models.ManyToManyField(User, related_name='joined_groups', through='GroupMember')
     created_at = models.DateTimeField(auto_now_add=True)
-
+    streaming_services = ArrayField(models.CharField(max_length=100), default=list, blank=True)
+    genres_preference = ArrayField(models.CharField(max_length=100), default=list, blank=True)
     def generate_code(self):
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 

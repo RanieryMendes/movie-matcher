@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import theme from './styles/theme'
 
 export const metadata: Metadata = {
-  title: 'Your App Name',
+  title: 'MovieMatcher',
   description: 'Your app description',
   icons: {
     icon: 'icon.ico',

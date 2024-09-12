@@ -13,7 +13,7 @@ matching_group_router = Router()
 def create_group(request, group_in: GroupIn):  
     if not request.auth:
         return {"detail": "Authentication failed"}, 401
-    group = Group.objects.create(name=group_in.name, creator=request.auth)
+    group = Group.objects.create(name=group_in.name, creator=request.auth, streaming_services=group_in.streaming_services, genres_preference=group_in.genres_preference)
     GroupMember.objects.create(user=request.auth, group=group)
     return group
 
@@ -25,7 +25,16 @@ def join_group(request, join_in: JoinGroupIn):
 
 @matching_group_router.get("/groups", response=List[GroupOut], auth=AuthBearer())
 def list_groups(request):
-    return request.user.joined_groups.all()
+    if not request.auth:
+        return [], 401  # Return an empty list and 401 Unauthorized status
+    print(request.auth)
+    user_groups = GroupMember.objects.filter(user=request.auth)
+    print(user_groups)
+    response =[member.group for member in user_groups]
+    print("response ",response)
+    return response
+    # print("request.user.joined_groups.all()", request.user.joined_groups.all())
+    # return request.user.joined_groups.all()
 
 @matching_group_router.post("/preferences", response=UserMoviePreferenceOut, auth=AuthBearer())
 def create_preference(request, preference_in: UserMoviePreferenceIn):

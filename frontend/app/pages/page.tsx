@@ -1,18 +1,29 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, Grid } from '@mui/material';
+import { styled } from '@mui/system';
 import MovieCarousel from './../components/MovieCarousel';
-
 import dynamic from 'next/dynamic';
-interface Movie {
-  id: number;
-  title: string;
-  poster_path: string;
-  tmdb_id: number;
-}
-const Sidebar = dynamic(() => import('./../components/sideBar'), { ssr: false });
 
+// ... existing interfaces and dynamic import ...
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  background: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+}));
+
+const ContentBox = styled(Box)(({ theme }) => ({
+  backgroundColor: 'white',
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(4),
+  marginBottom: theme.spacing(4),
+}));
+
+const Sidebar = dynamic(() => import('./../components/sideBar'), { ssr: false });
 export default function Home() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
 
@@ -30,22 +41,28 @@ export default function Home() {
 
     fetchPopularMovies();
   }, []);
-
+ 
   return (
-    <div>
-   
-    <Box sx={{ display: 'flex' }}>
-    {typeof window !== 'undefined' && <Sidebar />}
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Welcome to Movie Matcher
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          Top 10 Popular Movies
-        </Typography>
-        <MovieCarousel movies={popularMovies} />
-      </Container>
-    </Box>
-    </div>
+    <StyledBox>
+      <Box sx={{ display: 'flex' }}>
+        {typeof window !== 'undefined' && <Sidebar />}
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Typography variant="h2" align="center" gutterBottom sx={{ color: 'white', fontWeight: 'bold', mb: 6 }}>
+            Welcome to Movie Matcher
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <ContentBox>
+                <Typography variant="h4" component="h2" gutterBottom>
+                  Top 10 Popular Movies
+                </Typography>
+                <MovieCarousel movies={popularMovies} />
+              </ContentBox>
+            </Grid>
+            {/* Add more content sections here if needed */}
+          </Grid>
+        </Container>
+      </Box>
+    </StyledBox>
   );
 }

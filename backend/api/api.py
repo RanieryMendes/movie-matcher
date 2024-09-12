@@ -19,6 +19,7 @@ from .movies.routes import router
 from .profile.routes import profile_router
 from .streamingPlatform.routes import router_streaming_platform
 from .matching.routes import matching_group_router
+
 api = NinjaAPI()
 api.add_router("/auth", auth_router)
 api.add_router("/movies", router)

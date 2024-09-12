@@ -2,7 +2,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress } from '@mui/material';
+import { styled } from '@mui/system';
+import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, Chip } from '@mui/material';
 import dynamic from 'next/dynamic';
 
 const Sidebar = dynamic(() => import('./../../components/sideBar'), { ssr: false });
@@ -15,6 +16,31 @@ interface Movie {
   vote_average: number;
   poster_path: string;
 }
+const StyledBox = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  background: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+}));
+
+const ContentBox = styled(Box)(({ theme }) => ({
+  backgroundColor: 'white',
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(4),
+  marginBottom: theme.spacing(4),
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  padding: theme.spacing(1.5, 3),
+  fontSize: '1rem',
+  transition: 'all 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
+    backgroundColor: theme.palette.common.white,
+    color: theme.palette.primary.main,
+  },
+}));
 
 export default function MoviePage() {
   const router = useRouter();
@@ -40,51 +66,62 @@ export default function MoviePage() {
 
   if (!movie) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <Sidebar /> 
-        <CircularProgress />
-      </Box>
+      <StyledBox>
+        <Box sx={{ display: 'flex' }}>
+          {typeof window !== 'undefined' && <Sidebar />}
+          <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <CircularProgress />
+          </Container>
+        </Box>
+      </StyledBox>
     );
   }
 
   const moviePoster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      {typeof window !== 'undefined' && <Sidebar />}
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Card sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, mb: 4 }}>
-          <CardMedia
-            component="img"
-            sx={{ width: { xs: '100%', md: 300 }, height: 'auto' }}
-            image={moviePoster}
-            alt={movie.title}
-          />
-          <CardContent sx={{ flex: 1 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              {movie.title}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Release Date:</strong> {movie.release_date}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Rating:</strong> {movie.vote_average}/10
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Overview:</strong> {movie.overview}
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => router.push('/')}
-              sx={{ mt: 2 }}
-            >
-              Back to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </Container>
-    </Box>
+    <StyledBox>
+      <Box sx={{ display: 'flex' }}>
+        {typeof window !== 'undefined' && <Sidebar />}
+        <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+          <Typography variant="h2" align="center" gutterBottom sx={{ color: 'white', fontWeight: 'bold', mb: 6 }}>
+            {movie.title}
+          </Typography>
+          <ContentBox>
+            <Card sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, boxShadow: 3 }}>
+              <CardMedia
+                component="img"
+                sx={{ width: { xs: '100%', md: 300 }, height: 'auto' }}
+                image={moviePoster}
+                alt={movie.title}
+              />
+              <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    Overview
+                  </Typography>
+                  <Typography variant="body1" paragraph>
+                    {movie.overview}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    <Chip label={`Release Date: ${movie.release_date}`} variant="outlined" />
+                    <Chip label={`Rating: ${movie.vote_average}/10`} variant="outlined" color="primary" />
+                  </Box>
+                </Box>
+                <StyledButton
+                  variant="contained"
+                  color="primary"
+                  onClick={() => router.push('/')}
+                  sx={{ alignSelf: 'flex-start' }}
+                >
+                  Back to Home
+                </StyledButton>
+              </CardContent>
+            </Card>
+          </ContentBox>
+        </Container>
+      </Box>
+    </StyledBox>
   );
 }
 

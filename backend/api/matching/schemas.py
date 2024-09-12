@@ -1,12 +1,13 @@
 from ninja import Schema
 from datetime import datetime
-
+from typing import List
 
 # ... (keep your existing schemas) ...
 
 class GroupIn(Schema):
     name: str
-
+    streaming_services: List[str]
+    genres_preference: List[str]
 class GroupOut(Schema):
     id: int
     name: str

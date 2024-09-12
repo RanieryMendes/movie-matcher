@@ -15,12 +15,15 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
+  Autocomplete,
+  Chip,
+  Paper,
+  CircularProgress
 } from '@mui/material';
 import { getProfile, updateProfile, uploadProfilePicture, getStreamingPlatforms, getGenres } from '../lib/api';
 import Sidebar from '../components/sideBar';
-import { Chip, Paper } from '@mui/material';
-import { Autocomplete } from '@mui/material';
 import countries from '../lib/countries';
+import { styled } from '@mui/system';
 interface Profile {
   username: string;
   country: string;
@@ -29,6 +32,32 @@ interface Profile {
   profile_picture: string | null;
   bio: string;
 }
+
+const StyledBox = styled(Box)(({ theme }) => ({
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+  }));
+  
+const ContentBox = styled(Box)(({ theme }) => ({
+    backgroundColor: 'white',
+    borderRadius: theme.shape.borderRadius,
+    padding: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+  }));
+  
+const StyledButton = styled(Button)(({ theme }) => ({
+    padding: theme.spacing(1.5, 3),
+    fontSize: '1rem',
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.primary.main,
+    },
+  }));
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -122,188 +151,144 @@ export default function ProfilePage() {
 
   const API_BASE_URL = process.env.API_BASE_URL;
   if (!profile) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <StyledBox>
+        <Box sx={{ display: 'flex' }}>
+          {typeof window !== 'undefined' && <Sidebar />}
+          <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <CircularProgress />
+          </Container>
+        </Box>
+      </StyledBox>
+    );
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-    <Sidebar />
-    <Container maxWidth="md">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Hi {profile.username}
-        </Typography>
-        <Card>
-          <CardContent>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Avatar
-                  src={profile.profile_picture}
-                  sx={{ width: 150, height: 150, margin: 'auto' }}
-                />
-                {isEditing && (
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <input
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      id="profile-picture-upload"
-                      type="file"
-                      onChange={handleProfilePictureChange}
+    <StyledBox>
+      <Box sx={{ display: 'flex' }}>
+        {typeof window !== 'undefined' && <Sidebar />}
+        <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+          <Typography variant="h2" align="center" gutterBottom sx={{ color: 'white', fontWeight: 'bold', mb: 6 }}>
+            Hi {profile.username}
+          </Typography>
+          <ContentBox>
+            <Card sx={{ boxShadow: 3 }}>
+              <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={4}>
+                    <Avatar
+                      src={profile.profile_picture}
+                      sx={{ width: 150, height: 150, margin: 'auto' }}
                     />
-                    <label htmlFor="profile-picture-upload">
-                      <Button variant="contained" component="span">
-                        Upload New Picture
-                      </Button>
-                    </label>
-                  </Box>
-                )}
-              </Grid>
-              <Grid item xs={12} md={8}>
-                {isEditing ? (
-                  <form onSubmit={handleUpdate}>
-
-                    {/* <TextField
-                      fullWidth
-                      label="Country"
-                      value={profile.country}
-                      onChange={(e) =>
-                        setProfile({ ...profile, country: e.target.value })
-                      }
-                      margin="normal"
-                    /> */}
-                     <Autocomplete
-                    options={countries}
-                    autoHighlight
-                    value={profile.country}
-                    onChange={(event, newValue) => {
-                        setProfile({ ...profile, country: newValue || '' });
-                    }}
-                    renderInput={(params) => (
-                        <TextField
-                        {...params}
-                        label="Choose a country"
-                        fullWidth
-                        margin="normal"
+                    {isEditing && (
+                      <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        <input
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          id="profile-picture-upload"
+                          type="file"
+                          onChange={handleProfilePictureChange}
                         />
+                        <label htmlFor="profile-picture-upload">
+                          <StyledButton variant="contained" component="span">
+                            Upload New Picture
+                          </StyledButton>
+                        </label>
+                      </Box>
                     )}
-                    />
-
-                    {/* <TextField
-                      fullWidth
-                      label="Streaming Services"
-                      value={profile.streaming_services}
-                      onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          streaming_services: e.target.value,
-                        })
-                      }
-                      margin="normal"
-                    /> */}
-                        {/* <FormGroup> */}
-                            {/* <Typography variant="subtitle1">Streaming Services</Typography>
-                            {availablePlatforms.map((platform) => (
-                                <FormControlLabel
-                                key={platform}
-                                control={
-                                    <Checkbox
-                                    checked={profile.streaming_services.includes(platform)}
-                                    onChange={() => handleStreamingServiceChange(platform)}
-                                    />
-                                }
-                                label={platform}
-                                />
-                            ))}
-                        {/* </FormGroup>
-
-                        <FormGroup> 
-                            <Typography variant="subtitle1">Preferred Genres</Typography>
-                            {availableGenres.map((genre) => (
-                            <FormControlLabel
-                                key={genre}
-                                control={
-                                <Checkbox
-                                    checked={profile.preferred_genres.includes(genre)}
-                                    onChange={() => handleGenreChange(genre)}
-                                />
-                                }
-                                label={genre}
+                  </Grid>
+                  <Grid item xs={12} md={8}>
+                    {isEditing ? (
+                      <form onSubmit={handleUpdate}>
+                        <Autocomplete
+                          options={countries}
+                          autoHighlight
+                          value={profile.country}
+                          onChange={(event, newValue) => {
+                            setProfile({ ...profile, country: newValue || '' });
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Choose a country"
+                              fullWidth
+                              margin="normal"
                             />
-                            ))}
-                        </FormGroup> */}
+                          )}
+                        />
+
                         <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>Streaming Services</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {availablePlatforms.map((platform) => (
-                    <Chip
-                      key={platform}
-                      label={platform}
-                      onClick={() => handleStreamingServiceChange(platform)}
-                      color={profile.streaming_services.includes(platform) ? "primary" : "default"}
-                      variant={profile.streaming_services.includes(platform) ? "filled" : "outlined"}
-                    />
-                  ))}
-                </Box>
-              </Paper>
+                          <Typography variant="subtitle1" gutterBottom>Streaming Services</Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {availablePlatforms.map((platform) => (
+                              <Chip
+                                key={platform}
+                                label={platform}
+                                onClick={() => handleStreamingServiceChange(platform)}
+                                color={profile.streaming_services.includes(platform) ? "primary" : "default"}
+                                variant={profile.streaming_services.includes(platform) ? "filled" : "outlined"}
+                              />
+                            ))}
+                          </Box>
+                        </Paper>
 
-              <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>Preferred Genres</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {availableGenres.map((genre) => (
-                    <Chip
-                      key={genre}
-                      label={genre}
-                      onClick={() => handleGenreChange(genre)}
-                      color={profile.preferred_genres.includes(genre) ? "primary" : "default"}
-                      variant={profile.preferred_genres.includes(genre) ? "filled" : "outlined"}
-                    />
-                  ))}
-                </Box>
-              </Paper>
+                        <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
+                          <Typography variant="subtitle1" gutterBottom>Preferred Genres</Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {availableGenres.map((genre) => (
+                              <Chip
+                                key={genre}
+                                label={genre}
+                                onClick={() => handleGenreChange(genre)}
+                                color={profile.preferred_genres.includes(genre) ? "primary" : "default"}
+                                variant={profile.preferred_genres.includes(genre) ? "filled" : "outlined"}
+                              />
+                            ))}
+                          </Box>
+                        </Paper>
 
-            
-                    <TextField
-                      fullWidth
-                      label="Bio"
-                      multiline
-                      rows={4}
-                      value={profile.bio}
-                      onChange={(e) =>
-                        setProfile({ ...profile, bio: e.target.value })
-                      }
-                      margin="normal"
-                    />
-                    <Button type="submit" variant="contained" color="primary">
-                      Save Changes
-                    </Button>
-                  </form>
-                ) : (
-                  <>
-                    <Typography variant="h6">Country: {profile.country}</Typography>
-                    <Typography variant="body1">
-                      Streaming Services: {Array.isArray(profile.streaming_services) ? profile.streaming_services.join(', ') : 'None'}
-                    </Typography>
-                    <Typography variant="body1">
-                      Preferred Genres: {Array.isArray(profile.preferred_genres) ? profile.preferred_genres.join(', ') : 'None'}
-                    </Typography>
-            
-                    <Typography variant="body1">Bio: {profile.bio}</Typography>
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="contained"
-                      color="primary"
-                      sx={{ mt: 2 }}
-                    >
-                      Edit Profile
-                    </Button>
-                  </>
-                )}
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
+                        <TextField
+                          fullWidth
+                          label="Bio"
+                          multiline
+                          rows={4}
+                          value={profile.bio}
+                          onChange={(e) =>
+                            setProfile({ ...profile, bio: e.target.value })
+                          }
+                          margin="normal"
+                        />
+                        <StyledButton type="submit" variant="contained" color="primary">
+                          Save Changes
+                        </StyledButton>
+                      </form>
+                    ) : (
+                      <>
+                        <Typography variant="h6">Country: {profile.country}</Typography>
+                        <Typography variant="body1">
+                          Streaming Services: {Array.isArray(profile.streaming_services) ? profile.streaming_services.join(', ') : 'None'}
+                        </Typography>
+                        <Typography variant="body1">
+                          Preferred Genres: {Array.isArray(profile.preferred_genres) ? profile.preferred_genres.join(', ') : 'None'}
+                        </Typography>
+                        <Typography variant="body1">Bio: {profile.bio}</Typography>
+                        <StyledButton
+                          onClick={() => setIsEditing(true)}
+                          variant="contained"
+                          color="primary"
+                          sx={{ mt: 2 }}
+                        >
+                          Edit Profile
+                        </StyledButton>
+                      </>
+                    )}
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </ContentBox>
+        </Container>
       </Box>
-    </Container>
-    </Box>
+    </StyledBox>
   );
 }

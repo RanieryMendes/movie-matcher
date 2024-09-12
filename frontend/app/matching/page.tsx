@@ -1,11 +1,12 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MatchingWelcome from "../components/matchingWelcome";
+import BeginNewParty from "../components/beginParty";
 import Sidebar from "../components/sideBar";
 import { Box } from "@mui/material";
-
+import MyParties from "../components/myParties";
 const theme = createTheme({
   palette: {
     primary: {
@@ -18,13 +19,17 @@ const theme = createTheme({
 });
 
 export default function Matching() {
+  const [currentView, setCurrentView] = useState('welcome');
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         <Sidebar />
         <Box component="main" sx={{ flexGrow: 1 }}>
-          <MatchingWelcome />
+          {currentView === 'welcome' && <MatchingWelcome onBeginNewParty={() => setCurrentView('newParty')} onMyParties={() => setCurrentView('myParties')}/>}
+          {currentView === 'newParty' && <BeginNewParty  onBackToWelcome={() => setCurrentView('welcome')} onMyParties={() => setCurrentView('myParties')}/>}
+          {currentView === 'myParties' && <MyParties />}
         </Box>
       </Box>
     </ThemeProvider>

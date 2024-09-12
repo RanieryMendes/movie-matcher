@@ -107,3 +107,28 @@ export async function getGenres(): Promise<string[]> {
   const data = await response.json();
   return data.genres;
 }
+
+export async function createParty(partyData: any) {
+  const response = await fetch(`${API_BASE_URL}/api/matching/groups`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+    body: JSON.stringify(partyData),
+  });
+  if (!response.ok) throw new Error('Failed to create party');
+  return response.json();
+}
+
+export async function getUserParties() {
+  const response = await fetch(`${API_BASE_URL}/api/matching/groups`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to fetch user parties');
+  return response.json();
+}
+
+
