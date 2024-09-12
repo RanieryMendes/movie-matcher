@@ -1,5 +1,5 @@
 from ninja import Router
-from .schemas import GroupIn, GroupOut, JoinGroupIn, UserMoviePreferenceIn, UserMoviePreferenceOut
+from .schemas import GroupIn, GroupOut, JoinGroupIn, UserMoviePreferenceIn, UserMoviePreferenceOut, PartyOut
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -35,6 +35,21 @@ def list_groups(request):
     return response
     # print("request.user.joined_groups.all()", request.user.joined_groups.all())
     # return request.user.joined_groups.all()
+
+@matching_group_router.get("/groups/{group_id}", response=PartyOut, auth=AuthBearer())
+def get_group_details(request, group_id: str):
+    group = get_object_or_404(Group, code=group_id)
+    members = [{"id": member.id, "username": member.username} for member in group.members.all()]
+    return {
+        "id": group.id,
+        "name": group.name,
+        "code": group.code,
+        "creator_id": group.creator.id,
+        "created_at": group.created_at,
+        "streaming_services": group.streaming_services,
+        "genres_preference": group.genres_preference,
+        "members": members
+    }
 
 @matching_group_router.post("/preferences", response=UserMoviePreferenceOut, auth=AuthBearer())
 def create_preference(request, preference_in: UserMoviePreferenceIn):

@@ -132,6 +132,10 @@ class Group(models.Model):
         if not self.code:
             self.code = self.generate_code()
         super().save(*args, **kwargs)
+    
+    @property
+    def members_username(self):
+        return list(self.members.values_list('username', flat=True))
 
 class GroupMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

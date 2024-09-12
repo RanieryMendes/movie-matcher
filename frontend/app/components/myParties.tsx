@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Container, List, ListItem, ListItemText, Chip, Snackbar } from '@mui/material';
 import { styled } from '@mui/system';
 import { getUserParties } from '../lib/api';
-
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 const StyledButton = styled(Button)(({ theme }) => ({
-  padding: theme.spacing(2, 4),
-  fontSize: '1.1rem',
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    transform: 'scale(1.05)',
-    backgroundColor: theme.palette.common.white,
-    color: theme.palette.primary.main,
-  },
-}));
+    padding: theme.spacing(1, 2),
+    fontSize: '0.875rem',
+    minWidth: '80px',
+    height: '36px',
+    marginLeft: theme.spacing(1),
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.primary.main,
+    },
+  }));
+  
 
 interface Party {
     id: number;
@@ -60,6 +66,12 @@ const MyParties = () => {
       setOpenSnackbar(true);
     });
   };
+
+  const router = useRouter();
+
+   const handleGoToParty = (partyId: string) => {
+    router.push(`/party/${partyId}`);
+   };
 
   const handleCloseSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -111,13 +123,23 @@ const MyParties = () => {
                       </React.Fragment>
                     }
                   />
-                  <StyledButton
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleShareParty(party.code)}
-                  >
-                    Share
-                  </StyledButton>
+           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+           <Link href={`/party/${party.code}`}>
+            <StyledButton
+            variant="contained"
+            color="primary"
+            >
+                <PlayArrowIcon />
+            </StyledButton>
+            </Link>
+            <StyledButton
+            variant="contained"
+            color="primary"
+            onClick={() => handleShareParty(party.code)}
+            >
+            Share
+            </StyledButton>
+      </Box>
                 </ListItem>
               ))}
             </List>

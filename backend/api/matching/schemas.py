@@ -15,6 +15,20 @@ class GroupOut(Schema):
     creator_id: int
     created_at: datetime
 
+class MemberSchema(Schema):
+    id: int
+    username: str
+class PartyOut(Schema):
+    id: int
+    name: str
+    code: str
+    creator_id: int
+    created_at: datetime
+    streaming_services: List[str]
+    genres_preference: List[str]
+    members: List[MemberSchema]
+
+
 class JoinGroupIn(Schema):
     code: str
 

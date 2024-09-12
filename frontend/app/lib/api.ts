@@ -131,4 +131,12 @@ export async function getUserParties() {
   return response.json();
 }
 
-
+export async function getPartyDetails(partyId: string) {
+  const response = await fetch(`${API_BASE_URL}/api/matching/groups/${partyId}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to fetch party details');
+  return response.json();
+}
