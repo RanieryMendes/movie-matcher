@@ -7,6 +7,7 @@ import BeginNewParty from "../components/beginParty";
 import Sidebar from "../components/sideBar";
 import { Box } from "@mui/material";
 import MyParties from "../components/myParties";
+import JoinParty from "../components/joinParty";
 const theme = createTheme({
   palette: {
     primary: {
@@ -27,9 +28,10 @@ export default function Matching() {
       <Box sx={{ display: 'flex' }}>
         <Sidebar />
         <Box component="main" sx={{ flexGrow: 1 }}>
-          {currentView === 'welcome' && <MatchingWelcome onBeginNewParty={() => setCurrentView('newParty')} onMyParties={() => setCurrentView('myParties')}/>}
+          {currentView === 'welcome' && <MatchingWelcome onBeginNewParty={() => setCurrentView('newParty')} onMyParties={() => setCurrentView('myParties')} onJoinParty={() => setCurrentView('joinParty')}/>}
           {currentView === 'newParty' && <BeginNewParty  onBackToWelcome={() => setCurrentView('welcome')} onMyParties={() => setCurrentView('myParties')}/>}
-          {currentView === 'myParties' && <MyParties />}
+          {currentView === 'myParties' && <MyParties onBackToWelcome={() => setCurrentView('welcome')}/>}
+          {currentView === 'joinParty' && <JoinParty onBackToWelcome={() => setCurrentView('welcome')} />}
         </Box>
       </Box>
     </ThemeProvider>

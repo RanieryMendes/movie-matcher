@@ -19,11 +19,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const MatchingWelcome = ({ onBeginNewParty, onMyParties }) => {
+const MatchingWelcome = ({ onBeginNewParty, onMyParties, onJoinParty }) => {
   const buttons = [
     { text: 'My Parties', icon: <GroupIcon />, onClick: onMyParties },
     { text: 'Begin New Party', icon: <CelebrationIcon />, onClick: onBeginNewParty },
-    { text: 'Join a Party', icon: <MeetingRoomIcon />, onClick: () => {} },
+    { text: 'Join a Party', icon: <MeetingRoomIcon />, onClick: onJoinParty },
   ];
 
   return (

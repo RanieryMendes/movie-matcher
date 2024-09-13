@@ -23,6 +23,35 @@ const ContentBox = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
 }));
 
+interface Movie {
+  tmdb_id: number;
+  title: string;
+  vote_average?: number;
+  vote_count?: number;
+  status?: string;
+  release_date?: string;
+  revenue?: number;
+  runtime?: number;
+  adult: boolean;
+  backdrop_path?: string;
+  budget?: number;
+  homepage?: string;
+  imdb_id?: string;
+  original_language?: string;
+  original_title?: string;
+  overview?: string;
+  popularity?: number;
+  poster_path?: string;
+  tagline?: string;
+  genres?: string[];
+  production_companies?: string[];
+  production_countries?: string[];
+  spoken_languages?: string;
+  keywords?: string;
+}
+
+
+
 const Sidebar = dynamic(() => import('./../components/sideBar'), { ssr: false });
 export default function Home() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
@@ -54,7 +83,7 @@ export default function Home() {
             <Grid item xs={12}>
               <ContentBox>
                 <Typography variant="h4" component="h2" gutterBottom>
-                  Top 10 Popular Movies
+                  Be Careful. You may view it only once 🍿
                 </Typography>
                 <MovieCarousel movies={popularMovies} />
               </ContentBox>

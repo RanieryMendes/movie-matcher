@@ -151,3 +151,15 @@ class UserMoviePreference(models.Model):
 
     class Meta:
         unique_together = ('user', 'movie', 'group')
+class MatchingSession(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    movies = ArrayField(models.IntegerField())  # Store TMDb IDs
+    current_index = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class UserMovieVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(MatchingSession, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    liked = models.BooleanField()

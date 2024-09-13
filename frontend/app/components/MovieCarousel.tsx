@@ -15,7 +15,7 @@ interface MovieCarouselProps {
 }
 
 const MovieCarousel: React.FC<MovieCarouselProps> = ({ movies }) => {
-  console.log(movies);
+
   return (
    
     <Carousel>

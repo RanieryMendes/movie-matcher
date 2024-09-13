@@ -16,7 +16,7 @@ services:
       - ALLOWED_HOSTS=localhost,127.0.0.1
     depends_on:
       - postgres
-
+      - redis
   frontend:
     build: ./frontend
     volumes:
@@ -41,6 +41,14 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  redis:
+    image: redis:6.2-alpine
+    name: movie-matcher-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
 
 volumes:
   postgres-data:
+  redis-data:

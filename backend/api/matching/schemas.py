@@ -1,6 +1,6 @@
 from ninja import Schema
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 # ... (keep your existing schemas) ...
 
@@ -27,6 +27,7 @@ class PartyOut(Schema):
     streaming_services: List[str]
     genres_preference: List[str]
     members: List[MemberSchema]
+    is_creator: bool
 
 
 class JoinGroupIn(Schema):
@@ -44,3 +45,35 @@ class UserMoviePreferenceOut(Schema):
     group_id: int
     liked: bool
     created_at: datetime
+
+
+class StartSessionIn(Schema):
+    code: str
+    genre: Optional[str] = None
+
+class SessionOut(Schema):
+    id: int
+    group_id: int
+    current_index: int
+    is_active: bool
+    created_at: datetime
+
+class MovieVoteIn(Schema):
+    session_id: int
+    movie_id: int
+    liked: bool
+
+class MovieVoteOut(Schema):
+    id: int
+    user_id: int
+    session_id: int
+    movie_id: int
+    liked: bool
+
+class MatchResultOut(Schema):
+    movie_id: int
+    title: str
+    overview: str
+    poster_path: str
+    vote_count: int
+    vote_average: float

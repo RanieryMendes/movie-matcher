@@ -84,3 +84,5 @@ sqlparse==0.5.1
 typing_extensions==4.12.2
 tzdata==2024.1
 urllib3==2.2.2
+redis==4.3.4
+django-redis==5.2.0

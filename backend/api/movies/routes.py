@@ -7,6 +7,7 @@ from ..auth.security import AuthBearer
 from django.forms.models import model_to_dict
 from ninja.responses import Response
 from django.http import JsonResponse
+import random
 
 router = Router()
 
@@ -20,8 +21,9 @@ router = Router()
 
 @router.get("/popular", response=List[MovieSchema])
 def get_popular_movies(request):
-    print("In popular request")
-    popular_movies = Movie.objects.order_by('-popularity')[:10]
+    total_movies = Movie.objects.count()
+    random_ids = random.sample(range(1, total_movies + 1), 10)
+    popular_movies = Movie.objects.filter(id__in=random_ids)
     
     movie_list = []
     for movie in popular_movies:

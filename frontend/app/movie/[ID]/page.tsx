@@ -9,13 +9,32 @@ import dynamic from 'next/dynamic';
 const Sidebar = dynamic(() => import('./../../components/sideBar'), { ssr: false });
 
 interface Movie {
-  id: number;
+  tmdb_id: number;
   title: string;
-  overview: string;
-  release_date: string; 
-  vote_average: number;
-  poster_path: string;
+  vote_average?: number;
+  vote_count?: number;
+  status?: string;
+  release_date?: string;
+  revenue?: number;
+  runtime?: number;
+  adult: boolean;
+  backdrop_path?: string;
+  budget?: number;
+  homepage?: string;
+  imdb_id?: string;
+  original_language?: string;
+  original_title?: string;
+  overview?: string;
+  popularity?: number;
+  poster_path?: string;
+  tagline?: string;
+  genres?: string[];
+  production_companies?: string[];
+  production_countries?: string[];
+  spoken_languages?: string;
+  keywords?: string;
 }
+
 const StyledBox = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
   display: 'flex',
@@ -79,6 +98,7 @@ export default function MoviePage() {
 
   const moviePoster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
+
   return (
     <StyledBox>
       <Box sx={{ display: 'flex' }}>
@@ -106,13 +126,26 @@ export default function MoviePage() {
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                     <Chip label={`Release Date: ${movie.release_date}`} variant="outlined" />
                     <Chip label={`Rating: ${movie.vote_average}/10`} variant="outlined" color="primary" />
+                    <Chip label={`Popularity: ${movie.popularity?.toFixed(1)}`} variant="outlined" color="secondary" />
                   </Box>
+                  {movie.genres && movie.genres.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="h6" component="h3" gutterBottom>
+                        Genres
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {movie.genres.map((genre, index) => (
+                          <Chip key={index} label={genre} variant="outlined" color="info" />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
                 <StyledButton
                   variant="contained"
                   color="primary"
                   onClick={() => router.push('/')}
-                  sx={{ alignSelf: 'flex-start' }}
+                  sx={{ alignSelf: 'flex-start', mt: 2 }}
                 >
                   Back to Home
                 </StyledButton>

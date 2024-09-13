@@ -1,10 +1,15 @@
 'use client'
-import { getPartyDetails } from '../../lib/api';
-import { Box, Typography, Chip, List, ListItem, ListItemText, Paper, Container, CircularProgress } from '@mui/material';
+import { getPartyDetails, deleteParty } from '../../lib/api';
+import { Box, Typography, Chip, List, ListItem, ListItemText, Paper, Container, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { styled } from '@mui/system';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Sidebar from '../../components/sideBar';
+import Link from 'next/link';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -14,6 +19,16 @@ const StyledBox = styled(Box)(({ theme }) => ({
   background: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
 }));
 
+const StyledButton = styled(Button)(({ theme }) => ({
+    padding: theme.spacing(2, 4),
+    fontSize: '1.1rem',
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.primary.main,
+    },
+  }));
 const ContentBox = styled(Paper)(({ theme }) => ({
   backgroundColor: 'white',
   borderRadius: theme.shape.borderRadius,
@@ -26,13 +41,16 @@ interface PartyDetails {
     streaming_services: string[];
     genres_preference: string[];
     members: { id: number; username: string }[];
+    is_creator: boolean;
 }
 
 export default function PartyPage() {
     const [partyDetails, setPartyDetails] = useState<PartyDetails | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [openDialog, setOpenDialog] = useState(false);
     const params = useParams();
     const partyID = params.ID as string;
+    const router = useRouter();
 
     useEffect(() => {
         const fetchPartyDetails = async () => {
@@ -47,6 +65,25 @@ export default function PartyPage() {
         };
         fetchPartyDetails();
     }, [partyID]);
+
+    const handleDeleteClick = () => {
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            await deleteParty(partyID);
+            router.push('/matching');
+        } catch (error) {
+            console.error('Error deleting party:', error);
+            // You might want to show an error message to the user here
+        }
+        setOpenDialog(false);
+    };
 
     return (
         <StyledBox>
@@ -96,13 +133,53 @@ export default function PartyPage() {
                                         </ListItem>
                                     ))}
                                 </List>
+                                {partyDetails.is_creator && (
+                                    <StyledButton
+                                        variant="contained"
+                                        color="error"
+                                        fullWidth
+                                        onClick={handleDeleteClick}
+                                        sx={{ mt: 2 }}
+                                    >
+                                        Delete Party
+                                    </StyledButton>
+                                )}
                             </>
                         ) : (
                             <Typography>No party details found.</Typography>
                         )}
                     </ContentBox>
+                    <Link href="/matching">
+                    <StyledButton
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    startIcon={<ArrowBackIcon />}
+                    >
+                    Return
+                    </StyledButton>
+                    </Link>
                 </Container>
             </Box>
+            <Dialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Delete Party?"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete this party? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete} color="error" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </StyledBox>
     );
 }

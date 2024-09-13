@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Container, TextField, Autocomplete, Chip, FormControlLabel, Switch } from '@mui/material';
 import { styled } from '@mui/system';
 import { getStreamingPlatforms, getGenres, createParty } from '../lib/api';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const StyledButton = styled(Button)(({ theme }) => ({
   padding: theme.spacing(2, 4),
   fontSize: '1.1rem',
@@ -14,7 +14,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const BeginNewParty = ({ onBackToWelcome, onMyParties }) => {
+const BeginNewParty = ({ onBackToWelcome, onMyParties, }) => {
   const [partyName, setPartyName] = useState('');
   const [streamingServices, setStreamingServices] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -118,6 +118,15 @@ const BeginNewParty = ({ onBackToWelcome, onMyParties }) => {
             Create Party
           </StyledButton>
         </Box>
+        <StyledButton
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={onBackToWelcome}
+          startIcon={<ArrowBackIcon />}
+        >
+          Return
+        </StyledButton>
       </Container>
     </Box>
   );

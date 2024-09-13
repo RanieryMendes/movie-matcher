@@ -5,6 +5,8 @@ import { getUserParties } from '../lib/api';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';  
+
 const StyledButton = styled(Button)(({ theme }) => ({
     padding: theme.spacing(1, 2),
     fontSize: '0.875rem',
@@ -28,7 +30,7 @@ interface Party {
     created_at: Date;
 }
 
-const MyParties = () => {
+const MyParties = ({onBackToWelcome}) => {
   const [parties, setParties] = useState<Party[]>([]); //I want parties to be an array of Party objects 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -149,6 +151,15 @@ const MyParties = () => {
             </Typography>
           )}
         </Box>
+        <StyledButton
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={onBackToWelcome}
+          startIcon={<ArrowBackIcon />}
+        >
+          Return
+        </StyledButton>
       </Container>
       <Snackbar
         anchorOrigin={{
