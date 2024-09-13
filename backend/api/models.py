@@ -157,6 +157,11 @@ class MatchingSession(models.Model):
     current_index = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ], default='active')
 
 class UserMovieVote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

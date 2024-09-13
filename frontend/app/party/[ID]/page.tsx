@@ -8,7 +8,7 @@ import Sidebar from '../../components/sideBar';
 import Link from 'next/link';
 import { Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
-
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -133,6 +133,13 @@ export default function PartyPage() {
                                         </ListItem>
                                     ))}
                                 </List>
+                                <StyledButton
+                                variant="contained"
+                                color="primary"
+                                onClick={() => router.push(`/matching/on/${partyID}`)}
+                                >
+                                 <PlayArrowIcon />
+                                </StyledButton>
                                 {partyDetails.is_creator && (
                                     <StyledButton
                                         variant="contained"

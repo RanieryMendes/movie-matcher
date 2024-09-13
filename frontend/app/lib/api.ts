@@ -168,3 +168,53 @@ export async function deleteParty(partyId: string): Promise<void> {
       throw new Error('Failed to delete party');
   }
 }
+
+export async function startMatchingSession(groupId: string, genre?: string) {
+  console.log("groupId", groupId);
+  console.log("In startMatchingSession");
+  const response = await fetch(`${API_BASE_URL}/api/matching/start-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+    body: JSON.stringify({ code: groupId, genre: genre }),
+  });
+  if (!response.ok) throw new Error('Failed to start matching session');
+  return response.json();
+}
+
+export async function getNextMovie(sessionId: number) {
+  console.log("In getNextMovie");
+  const response = await fetch(`${API_BASE_URL}/api/matching/nextmovie/${sessionId}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to get next movie');
+  return response.json();
+}
+
+export async function voteMovie(voteData: { session_id: number, movie_id: number, liked: boolean }) {
+  const response = await fetch(`${API_BASE_URL}/api/matching/vote`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+    body: JSON.stringify(voteData),
+  });
+  if (!response.ok) throw new Error('Failed to submit vote');
+  return response.json();
+}
+
+export async function getMatchingResult(sessionId: number) {
+  const response = await fetch(`${API_BASE_URL}/api/matching/result?session_id=${sessionId}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to get matching result');
+  return response.json();
+}
+
