@@ -51,6 +51,19 @@ export default function MatchingPage() {
   const [matchedMovie, setMatchedMovie] = useState<Movie | null>(null);
   const [waitingForResults, setWaitingForResults] = useState(false);
 
+  useEffect(() => {
+    if (ID) { 
+      checkOrStartSession();
+    }
+  }, [ID]);
+
+  useEffect(() => {
+    if (sessionId) {
+      const intervalId = setInterval(fetchNextMovie, 5000); // Check every 5 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [sessionId]);
+
   const checkOrStartSession = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/matching/session-status/${ID}`, {
@@ -62,34 +75,39 @@ export default function MatchingPage() {
       if (response.ok) {
         const sessionData = await response.json();
         setSessionId(sessionData.id);
-        fetchNextMovie(sessionData.id);
+        fetchNextMovie();
       } else {
         // No active session, start a new one
         const session = await startMatchingSession(ID as string);
         setSessionId(session.id);
-        fetchNextMovie(session.id);
+        fetchNextMovie();
       }
     } catch (error) {
       console.error('Error checking or starting session:', error);
     }
   };
-  
-  useEffect(() => {
-    if (ID) { 
-      startSession();
-      checkOrStartSession();
+
+  const fetchNextMovie = async () => {
+    if (!sessionId) return;
+
+    try {
+      const movie = await getNextMovie(sessionId);
+      if (movie.detail === "No more movies in this session") {
+        setWaitingForResults(true);
+        checkSessionStatus();
+      } else {
+        setCurrentMovie(movie);
+      }
+    } catch (error) {
+      console.error('Error fetching next movie:', error);
+      setWaitingForResults(true);
+      checkSessionStatus();
     }
-  }, [ID]);
-  useEffect(() => {
-    if (sessionId && waitingForResults) {
-      const intervalId = setInterval(checkSessionStatus, 5000); // Check every 5 seconds
-      return () => clearInterval(intervalId);
-    }
-  }, [sessionId, waitingForResults]);
+  };
 
   const checkSessionStatus = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/matching/session-status/${sessionId}`, {
+      const response = await fetch(`http://localhost:8000/api/matching/session-status/${sessionId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
@@ -107,34 +125,18 @@ export default function MatchingPage() {
       console.error('Error checking session status:', error);
     }
   };
-  const startSession = async () => {
-    const session = await startMatchingSession(ID as string);
-    setSessionId(session.id);
-    fetchNextMovie(session.id);
-  };
-
-  const fetchNextMovie = async (sid: number) => {
-    try {
-      const movie = await getNextMovie(sid);
-      if (movie.detail === "No more movies in this session for the user") {
-        setWaitingForResults(true);
-      } else {
-        setCurrentMovie(movie);
-      }
-    } catch (error) {
-      console.error('Error fetching next movie:', error);
-      setWaitingForResults(true);
-    }
-  };
 
   const handleVote = async (liked: boolean) => {
+    if (!sessionId || !currentMovie) return;
+
     await voteMovie({
       session_id: sessionId,
-      movie_id: currentMovie!.tmdb_id,
+      movie_id: currentMovie.tmdb_id,
       liked: liked
     });
-    fetchNextMovie(sessionId);
+    fetchNextMovie();
   };
+
 
   if (matchedMovie) {
     return (

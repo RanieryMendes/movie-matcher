@@ -42,14 +42,12 @@ def get_next_movie(request, session_id: int):
         return {"detail": "Session not found or expired"}, 404
     
     session_data = json.loads(session_data)
-    user_id = str(request.auth.id)
-    user_votes = session_data["votes"].get(user_id, {})
-    user_index = user_votes.get("current_index", 0)
+    current_index = session_data["current_index"]
     
-    if user_index >= len(session_data["movies"]):
-        return {"detail": "No more movies in this session for the user"}, 404
+    if current_index >= len(session_data["movies"]):
+        return {"detail": "No more movies in this session"}, 404
     
-    movie_id = session_data["movies"][user_index]
+    movie_id = session_data["movies"][current_index]
     movie = get_object_or_404(Movie, tmdb_id=movie_id)
     
     # Prepare the response data
@@ -79,7 +77,6 @@ def get_next_movie(request, session_id: int):
         "spoken_languages": movie.spoken_languages,
         "keywords": movie.keywords,
     }
-    print("response_data ", response_data)
     return response_data
 
 
@@ -149,16 +146,15 @@ def get_group_matches(request, group_id: int):
 @matching_group_router.post("/start-session", response=SessionOut, auth=AuthBearer())
 def start_matching_session(request, data: StartSessionIn):
     group = get_object_or_404(Group, code=data.code)
-    if request.auth not in group.members.all():
-        return {"detail": "Only group members can start or join a matching session"}, 403
-    
+
     # Check for an existing active session
     existing_session = MatchingSession.objects.filter(group=group, status='active').first()
+    print(MatchingSession.objects.filter(group=group))
+    print("existing_session", existing_session)
     if existing_session:
         return SessionOut.from_orm(existing_session)
     
     movies = get_random_movies(data.genre, limit=20)
-    
     session = MatchingSession.objects.create(
         group=group,
         movies=[movie.tmdb_id for movie in movies],
@@ -171,7 +167,8 @@ def start_matching_session(request, data: StartSessionIn):
         "group_id": group.id,
         "movies": [movie.tmdb_id for movie in movies],
         "current_index": 0,
-        "votes": {}
+        "votes": {},
+        "members": list(group.members.values_list('id', flat=True))
     }
     cache.set(session_key, json.dumps(session_data), timeout=3600)  # 1 hour expiration
     
@@ -205,18 +202,14 @@ def vote_movie(request, vote: MovieVoteIn):
     
     session_data["votes"][user_id][vote.movie_id] = vote.liked
     
-    # Update the current_index for the user
-    user_votes = session_data["votes"][user_id]
-    session_data["votes"][user_id]["current_index"] = len(user_votes)
+    # Update the current_index for all users
+    session_data["current_index"] = min(session_data["current_index"] + 1, len(session_data["movies"]))
     
     cache.set(session_key, json.dumps(session_data), timeout=3600)
     
-    # Still create a database record for persistence
-    print("vote.session_id", vote.session_id)
+    # Create a database record for persistence
     session = get_object_or_404(MatchingSession, id=vote.session_id)
-    print("session", session)
     movie = get_object_or_404(Movie, tmdb_id=vote.movie_id)
-    print("movie", movie)
     user_vote = UserMovieVote.objects.create(
         user=request.auth,
         session=session,
@@ -229,10 +222,8 @@ def vote_movie(request, vote: MovieVoteIn):
     return MovieVoteOut.from_orm(user_vote)
 
 def check_all_members_voted(session, session_data):
-    print("session.group", session.group)
-    group_members = GroupMember.objects.filter(group=session.group).count()
     voted_members = len(session_data["votes"])
-    return group_members == voted_members
+    return voted_members == len(session_data["members"])
 
 def broadcast_result(session):
     result = get_matching_result(session.id)
