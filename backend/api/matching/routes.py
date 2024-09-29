@@ -146,12 +146,15 @@ def get_group_matches(request, group_id: int):
 @matching_group_router.post("/start-session", response=SessionOut, auth=AuthBearer())
 def start_matching_session(request, data: StartSessionIn):
     group = get_object_or_404(Group, code=data.code)
-
+    print("This is my data ", data)
+    print("Thge fucking roup ", group)
     # Check for an existing active session
-    existing_session = MatchingSession.objects.filter(group=group, status='active').first()
+    existing_session = MatchingSession.objects.filter(group=group, status='active')
     print(MatchingSession.objects.filter(group=group))
     print("existing_session", existing_session)
+
     if existing_session:
+        print("Not that useless, it found the ", existing_session)
         return SessionOut.from_orm(existing_session)
     
     movies = get_random_movies(data.genre, limit=20)
@@ -178,6 +181,7 @@ def start_matching_session(request, data: StartSessionIn):
 def get_session_status(request, group_id: str):
     group = get_object_or_404(Group, code=group_id)
     session = MatchingSession.objects.filter(group=group, status='active').first()
+    print(" Aqui no get session status ", MatchingSession.objects.filter(group=group, status='active'))
     if session:
         return SessionOut.from_orm(session)
     return {"detail": "No active session found"}, 404
@@ -225,15 +229,16 @@ def check_all_members_voted(session, session_data):
     voted_members = len(session_data["votes"])
     return voted_members == len(session_data["members"])
 
-def broadcast_result(session):
+def broadcast_result(session : MatchingSession):
     result = get_matching_result(session.id)
+    print("Result ", result)
     # Here you would implement the logic to broadcast the result to all members
     # This could involve WebSockets, push notifications, or updating a shared state
     # For now, we'll just update the session status
     session.status = 'completed'
     session.save()
 @matching_group_router.get("/result/{session_id}", response=MatchResultOut, auth=AuthBearer())
-def get_matching_result(request, session_id: int):
+def get_matching_result(request, session_id: int)-> MatchResultOut:
     session_key = f"matching_session:{session_id}"
     session_data = cache.get(session_key)
     

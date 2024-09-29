@@ -170,8 +170,8 @@ export async function deleteParty(partyId: string): Promise<void> {
 }
 
 export async function startMatchingSession(groupId: string, genre?: string) {
-  console.log("groupId", groupId);
-  console.log("In startMatchingSession");
+
+  console.log("In startMatchingSession in Api.ts. The group id is ", groupId);
   const response = await fetch(`${API_BASE_URL}/api/matching/start-session`, {
     method: 'POST',
     headers: {

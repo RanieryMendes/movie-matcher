@@ -50,14 +50,16 @@ export default function MatchingPage() {
   const [currentMovie, setCurrentMovie] = useState<Movie | null>(null);
   const [matchedMovie, setMatchedMovie] = useState<Movie | null>(null);
   const [waitingForResults, setWaitingForResults] = useState(false);
-
+  
   useEffect(() => {
-    if (ID) { 
+    if (ID && !sessionId) { // Only call if ID exists and sessionId is not set
+      console.log("La vou eu call cackOrStartSession again, in useeffect")
       checkOrStartSession();
     }
-  }, [ID]);
+  }, [ID, sessionId]);
 
   useEffect(() => {
+    console.log("In useEffect for sessionId ", sessionId)
     if (sessionId) {
       const intervalId = setInterval(fetchNextMovie, 5000); // Check every 5 seconds
       return () => clearInterval(intervalId);
@@ -74,11 +76,14 @@ export default function MatchingPage() {
   
       if (response.ok) {
         const sessionData = await response.json();
+        console.log("Okay, API returned session data?", sessionData)
         setSessionId(sessionData.id);
         fetchNextMovie();
       } else {
         // No active session, start a new one
+        
         const session = await startMatchingSession(ID as string);
+        console.log("API had to create new session ", session)
         setSessionId(session.id);
         fetchNextMovie();
       }
