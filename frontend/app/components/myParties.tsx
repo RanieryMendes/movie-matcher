@@ -40,13 +40,17 @@ const MyParties = ({onBackToWelcome}) => {
       try {
         setIsLoading(true);
         const userParties = await getUserParties();
-        console.log("userParties ",userParties);
         setParties(userParties);
-        console.log("parties ",parties);
       } catch (error) {
-        console.error('Error fetching parties:', error);
+        if (error.statusCode === 401) {
+          // Unauthorized, redirect to login page
+          setError("Uhmm. It looks like you have not signed in yet :/");
+          handleUnloggedUser();
+        } 
+        else{
         setError('Failed to fetch parties. Please try again later.');
-      } finally {
+      } }
+      finally {
         setIsLoading(false);
       }
     };
@@ -70,6 +74,10 @@ const MyParties = ({onBackToWelcome}) => {
   };
 
   const router = useRouter();
+
+  const handleUnloggedUser = () =>{
+    router.push("/auth/login")
+  }
 
    const handleGoToParty = (partyId: string) => {
     router.push(`/party/${partyId}`);

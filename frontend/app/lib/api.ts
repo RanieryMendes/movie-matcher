@@ -127,7 +127,13 @@ export async function getUserParties() {
       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     },
   });
-  if (!response.ok) throw new Error('Failed to fetch user parties');
+
+  if(!response.ok){
+    const statusCode = response.status;
+    const error = new Error(`Failed to fetch user parties. Status code: ${statusCode}`);
+    error.statusCode = statusCode;
+    throw error}
+    
   return response.json();
 }
 
@@ -137,7 +143,12 @@ export async function getPartyDetails(partyId: string) {
       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     },
   });
-  if (!response.ok) throw new Error('Failed to fetch party details');
+  if(!response.ok){
+  const statusCode = response.status;
+  const error = new Error(`Failed to fetch party details. Status code: ${statusCode}`);
+  error.statusCode = statusCode;
+  throw error;
+  }
   return response.json();
 }
 

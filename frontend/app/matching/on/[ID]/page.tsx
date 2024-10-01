@@ -51,13 +51,19 @@ export default function MatchingPage() {
   const [matchedMovie, setMatchedMovie] = useState<Movie | null>(null);
   const [waitingForResults, setWaitingForResults] = useState(false);
   
+   
   useEffect(() => {
-    if (ID && !sessionId) { // Only call if ID exists and sessionId is not set
-      console.log("La vou eu call cackOrStartSession again, in useeffect")
+    if (ID && !sessionId) {
       checkOrStartSession();
     }
   }, [ID, sessionId]);
-
+  useEffect(() => {
+    if (sessionId) {
+      fetchNextMovie();
+      return () => clearTimeout(fetchNextMovie);
+    }
+  }, [sessionId]);
+  
   useEffect(() => {
     console.log("In useEffect for sessionId ", sessionId)
     if (sessionId) {
@@ -66,6 +72,14 @@ export default function MatchingPage() {
     }
   }, [sessionId]);
 
+  const initialCheckDone = useRef(false);
+
+  useEffect(() => {
+    if (ID && !sessionId && !initialCheckDone.current) {
+      initialCheckDone.current = true;
+      checkOrStartSession();
+    }
+  }, [ID, sessionId]);
   const checkOrStartSession = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/matching/session-status/${ID}`, {
@@ -76,25 +90,25 @@ export default function MatchingPage() {
   
       if (response.ok) {
         const sessionData = await response.json();
-        console.log("Okay, API returned session data?", sessionData)
         setSessionId(sessionData.id);
         fetchNextMovie();
-      } else {
+      } else if (response.status === 404) {
         // No active session, start a new one
-        
         const session = await startMatchingSession(ID as string);
-        console.log("API had to create new session ", session)
         setSessionId(session.id);
         fetchNextMovie();
+      } else {
+        throw new Error('Unexpected error occurred');
       }
     } catch (error) {
       console.error('Error checking or starting session:', error);
+      // Handle error (e.g., show error message to user)
     }
   };
 
   const fetchNextMovie = async () => {
     if (!sessionId) return;
-
+  
     try {
       const movie = await getNextMovie(sessionId);
       if (movie.detail === "No more movies in this session") {
@@ -102,6 +116,7 @@ export default function MatchingPage() {
         checkSessionStatus();
       } else {
         setCurrentMovie(movie);
+        setTimeout(fetchNextMovie, 5000);
       }
     } catch (error) {
       console.error('Error fetching next movie:', error);
@@ -109,6 +124,8 @@ export default function MatchingPage() {
       checkSessionStatus();
     }
   };
+  
+  
 
   const checkSessionStatus = async () => {
     try {
