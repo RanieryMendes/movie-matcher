@@ -26,6 +26,23 @@ const signIn = async (username:string, password: string) => {
 
 export { signIn };
 
+const checkSignedIn = async() => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/me`, 
+    {headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    }});
+ console.log("Response in API ", response)
+ console.log(response.status)
+  if (response.status === 200){
+    return {"loggedIn":true};}
+  else if (response.status === 401){
+    return  {"loggedIn":false};}
+  else{
+    throw  new Error('Checking if user is logged... failed');}
+    } 
+
+export {checkSignedIn};
+
 const getPopularMovies = async () => {
     const response = await fetch(`${API_BASE_URL}/api/movies/popular`, {
       headers: {
@@ -133,7 +150,7 @@ export async function getUserParties() {
     const error = new Error(`Failed to fetch user parties. Status code: ${statusCode}`);
     error.statusCode = statusCode;
     throw error}
-    
+
   return response.json();
 }
 

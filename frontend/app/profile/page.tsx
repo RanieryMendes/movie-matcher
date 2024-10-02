@@ -59,6 +59,15 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
   }));
 
+  const LogoutButton = styled(StyledButton)(({ theme }) => ({
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.common.white,
+    '&:hover': {
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.error.main,
+    },
+  }));
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -76,8 +85,6 @@ export default function ProfilePage() {
     try {
       const genres = await getGenres();
       setAvailableGenres(genres);
-      console.log("Genres", genres)
-
     } catch (error) {
       console.error('Error fetching genres:', error);
     }
@@ -86,7 +93,6 @@ export default function ProfilePage() {
     try {
       const platforms = await getStreamingPlatforms();
       setAvailablePlatforms(platforms);
-      console.log("Platforms", platforms)
     } catch (error) {
       console.error('Error fetching streaming platforms:', error);
     }
@@ -95,7 +101,6 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const data = await getProfile();
-      console.log("Data", data)
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -115,6 +120,12 @@ export default function ProfilePage() {
       console.error('Error updating profile:', error);
     }
   };
+  
+  const handleLogOut = () =>{
+    localStorage.removeItem("accessToken")
+    //Needs to include a call to delete everything in cache 
+    router.push("/")
+  }
 
   const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -276,10 +287,18 @@ export default function ProfilePage() {
                           onClick={() => setIsEditing(true)}
                           variant="contained"
                           color="primary"
-                          sx={{ mt: 2 }}
+                          sx={{ mt: 2, mr:1 }}
                         >
                           Edit Profile
                         </StyledButton>
+                        <LogoutButton
+                        onClick={() => handleLogOut()}
+                        variant="contained"
+            
+                        sx={{ mt: 2 }}
+                      >
+                        Log Out
+                      </LogoutButton>
                       </>
                     )}
                   </Grid>

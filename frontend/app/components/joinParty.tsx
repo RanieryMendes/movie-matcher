@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Container, TextField, Snackbar } from '@mui/material';
 import { styled } from '@mui/system';
-import { joinParty } from '../lib/api';
+import { joinParty, checkSignedIn } from '../lib/api';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/navigation';
 const StyledButton = styled(Button)(({ theme }) => ({
@@ -21,7 +21,18 @@ const JoinParty = ({ onBackToWelcome }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const router = useRouter();
 
+
+
+
   const handleJoinParty = async () => {
+    
+    const responseCheck = await checkSignedIn()
+    console.log("Response check ", responseCheck)
+
+    if (responseCheck.loggedIn){
+      console.log("Correctly passes")
+    }
+
     try {
       const response = await joinParty(partyCode);
       if (response.code === partyCode)  {
